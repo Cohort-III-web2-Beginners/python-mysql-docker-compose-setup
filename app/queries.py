@@ -8,3 +8,10 @@ CREATE TABLE IF NOT EXISTS users(
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL  
 );
 """
+
+CREATE_USER ="""
+    INSERT INTO users 
+    (username, password, email) 
+    VALUES 
+    (%s, %s, %s);
+"""

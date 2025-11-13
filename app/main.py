@@ -3,7 +3,7 @@ from datetime import datetime
 from typing import List, Optional, Dict
 from .database import db
 from . import queries
-from .controller import home
+from .models import User
 import logging
 import time
 
@@ -56,5 +56,40 @@ async def startup_event():
 
 
 
+# URL="/api/v1"
 
-# @app.get("/")(home)
+@app.get("/")
+def home():
+    return {
+        "status": "success",
+        "message": "Hello world"
+    }
+
+@app.post("/users/create", status_code=status.HTTP_201_CREATED)
+def create_user(user: User):
+    # logger.info("USER FROM RESPONSE:", user)
+    try:
+        with db.get_cursor() as cursor:
+            cursor.execute(
+                queries.CREATE_USER,
+                (user.username, user.password, user.email)
+            )
+
+            logger.info(f"User Created successfully")
+
+    except Exception as e:
+        logger.error(f"failed to create user: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail = {
+                "status": "error",
+                "message": f"failed to create user: {e}",
+                "timestamp": f"{datetime.utcnow()}"
+            }
+            )
+    
+    return {
+            "status": "success",
+            "data": user,
+            "timestamp": datetime.utcnow()
+        }
